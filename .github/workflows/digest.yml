@@ -1,0 +1,28 @@
+name: Evening Digest
+
+on:
+  schedule:
+    - cron: '0 19 * * *'  # 9pm Berlin time (CEST, UTC+2)
+  workflow_dispatch:       # also allows manual trigger from GitHub
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install groq requests beautifulsoup4 html2text
+
+      - name: Run digest agent
+        env:
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python digest_agent.py
